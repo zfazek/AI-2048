@@ -4,6 +4,7 @@
 
 int main() {
     Game game;
-    game.make_move();
-    game.table.print();
+    game.put_new_number();
+    game.put_new_number();
+    game.make_one_move();
 }

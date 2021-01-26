@@ -2,18 +2,31 @@
 
 #include <cstdint>
 #include <random>
-#include <unordered_map>
+#include <string>
+#include <vector>
 
 #include "Table.hh"
 
+typedef int Move;
+constexpr Move UP = 0;
+constexpr Move RIGHT = 1;
+constexpr Move DOWN = 2;
+constexpr Move LEFT = 3;
+
+
 class Game {
     public:
+        Game();
+        std::vector<Move> generate_possible_moves() const;
+        void make_one_move();
+        void put_new_number();
+        void make_move(const Move move);
+
         Table table;
-        void make_move();
 
     private:
         int get_one_or_two();
 
-        std::unordered_map<uint32_t, Value> dp;
+        std::string move_names[4];
         std::random_device rd;
 };

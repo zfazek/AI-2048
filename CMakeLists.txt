@@ -9,3 +9,7 @@ add_executable(ai-2048
     Table.cc
     main.cc
     )
+
+enable_testing()
+
+add_subdirectory(test)
