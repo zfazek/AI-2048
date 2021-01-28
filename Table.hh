@@ -29,9 +29,10 @@ class Table {
         int get_new_slot_idx();
         void put_new_number(const int idx, const int number);
         Value slide(const uint32_t in) const;
+        bool is_possible_to_slide(const int idx1, const int idx2, const int idx3, const int idx4) const;
         bool is_changing(const int idx1, const int idx2, const int idx3, const int idx4) const;
-        bool is_end() const;
-        void print() const;
+        uint64_t get_weighted_score() const;
+        void print(const bool clear = false) const;
 
         //  0  1  2  3
         //  4  5  6  7
@@ -39,7 +40,8 @@ class Table {
         // 12 13 14 15
         uint8_t arr[16];
         uint32_t score;
-        size_t counter;
+        uint64_t counter;
+        uint64_t number_of_moves;
 
     private:
         std::unordered_map<uint32_t, Value> dp;

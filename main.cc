@@ -7,7 +7,7 @@ int main() {
     game.put_new_number();
     game.put_new_number();
     while (true) {
-        game.table.print();
+        game.table.print(true);
         const bool succ = game.make_one_move();
         if (!succ) {
             break;

@@ -1,4 +1,5 @@
 #include "Game.hh"
+
 #include <chrono>
 
 Game::Game() {
@@ -13,34 +14,64 @@ bool Game::make_one_move() {
     if (moves.empty()) {
         return false;
     }
-    uint8_t arr_orig[16];
     Move best_move = 0;
-    uint32_t best_score = 0;
+    uint64_t best_score = 0;
     auto const start = std::chrono::system_clock::now();
     table.counter = 0;
+    table.number_of_moves = 0;
+    uint8_t arr_orig[16];
     while (true) {
         for (int i = 0; i < 16; ++i) {
             arr_orig[i] = table.arr[i];
         }
         uint32_t score_orig = table.score;
         for (const Move first_move : moves) {
-//            table.print();
-//            std::cout << "first move: " << move_names[first_move] << std::endl;
+            // table.print();
+            // std::cout << "first move: " << move_names[first_move] << std::endl;
             make_move(first_move);
             put_new_number();
             while (true) {
                 std::vector<Move> moves = generate_possible_moves();
                 if (moves.empty()) break;
-                std::mt19937 gen(rd());
-                std::uniform_int_distribution<> distrib(0, moves.size() - 1);
-                const int idx = distrib(gen);
-                make_move(moves[idx]);
+                if (true) {
+                    std::mt19937 gen(rd());
+                    std::uniform_int_distribution<> distrib(0, moves.size() - 1);
+                    const int idx = distrib(gen);
+                    make_move(moves[idx]);
+                } else {
+                    std::mt19937 gen(rd());
+                    std::uniform_real_distribution<> distrib(0, 1);
+                    const float v = distrib(gen);
+                    const size_t number_of_moves = moves.size();
+                    if (number_of_moves > 2) {
+                        if (v < 0.6) {
+                            make_move(moves[0]);
+                        } else if (v < 0.8) {
+                            make_move(moves[1]);
+                        } else {
+                            make_move(moves[2]);
+                        }
+                    } else if (number_of_moves == 2) {
+                        if (v < 0.5) {
+                            make_move(moves[0]);
+                        } else {
+                            make_move(moves[1]);
+                        }
+                    } else {
+                        make_move(moves[0]);
+                        if (number_of_moves == 1) {
+                            // table.print(false);
+                            // std::cout << "number of moves: " << number_of_moves << ", v: " << v << ", move: " << moves[0] << std::endl;
+                        }
+                    }
+                }
                 put_new_number();
             }
-//            table.print();
+            // table.print();
             ++table.counter;
-            if (table.score > best_score) {
-                best_score = table.score;
+            uint64_t weighted_score = table.get_weighted_score();
+            if (weighted_score > best_score) {
+                best_score = weighted_score;
                 best_move = first_move;
             }
             table.score = score_orig;
@@ -53,32 +84,43 @@ bool Game::make_one_move() {
             break;
         }
     }
-    std::cout << "best move: " << move_names[best_move] << ", best_score: " << best_score << std::endl;
+    // std::cout << "best move: " << move_names[best_move] << ", best_score: " << best_score << std::endl;
     make_move(best_move);
     put_new_number();
     return true;
 }
 
-std::vector<Move> Game::generate_possible_moves() const {
-    std::vector<Move> moves;
-    if (table.is_changing(0, 4, 8, 12) ||
-            table.is_changing(1, 5, 9, 13) ||
-            table.is_changing(2, 6, 10, 14) ||
-            table.is_changing(3, 7, 11, 15)) {
+std::vector<Move> Game::generate_possible_moves() {
+    moves.clear();
+    if (table.is_possible_to_slide(12, 8, 4, 0) ||
+            table.is_possible_to_slide(13, 9, 5, 1) ||
+            table.is_possible_to_slide(14, 10, 6, 2) ||
+            table.is_possible_to_slide(15, 11, 7, 3)) {
         moves.push_back(UP);
-        moves.push_back(DOWN);
     }
-    if (table.is_changing(0, 1, 2, 3) ||
-            table.is_changing(4, 5, 6, 7) ||
-            table.is_changing(8, 9, 10, 11) ||
-            table.is_changing(12, 13, 14, 15)) {
-        moves.push_back(RIGHT);
+    if (table.is_possible_to_slide(3, 2, 1, 0) ||
+            table.is_possible_to_slide(7, 6, 5, 4) ||
+            table.is_possible_to_slide(11, 10, 9, 8) ||
+            table.is_possible_to_slide(15, 14, 13, 12)) {
         moves.push_back(LEFT);
+    }
+    if (table.is_possible_to_slide(0, 1, 2, 3) ||
+            table.is_possible_to_slide(4, 5, 6, 7) ||
+            table.is_possible_to_slide(8, 9, 10, 11) ||
+            table.is_possible_to_slide(12, 13, 14, 15)) {
+        moves.push_back(RIGHT);
+    }
+    if (table.is_possible_to_slide(0, 4, 8, 12) ||
+            table.is_possible_to_slide(1, 5, 9, 13) ||
+            table.is_possible_to_slide(2, 6, 10, 14) ||
+            table.is_possible_to_slide(3, 7, 11, 15)) {
+        moves.push_back(DOWN);
     }
     return moves;
 }
 
 void Game::make_move(const Move move) {
+    ++table.number_of_moves;
     switch (move) {
         case UP:
             table.make_move(12, 8, 4, 0);

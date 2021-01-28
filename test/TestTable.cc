@@ -68,6 +68,21 @@ void test_slide() {
     assert(v == table.slide(0x02020101));
 }
 
+void test_weighted_score() {
+    Table table;
+    for (int i = 0; i < 16; ++i) {
+        table.arr[i] = i;
+    }
+    uint64_t score = table.get_weighted_score();
+    std::cout << score << std::endl;
+    for (int i = 0; i < 16; ++i) {
+        table.arr[i] = 16 - i;
+    }
+    score = table.get_weighted_score();
+    std::cout << score << std::endl;
+}
+
 int main() {
     test_slide();
+    test_weighted_score();
 }

@@ -17,7 +17,7 @@ constexpr Move LEFT = 3;
 class Game {
     public:
         Game();
-        std::vector<Move> generate_possible_moves() const;
+        std::vector<Move> generate_possible_moves();
         bool make_one_move();
         void put_new_number();
         void make_move(const Move move);
@@ -27,6 +27,7 @@ class Game {
     private:
         int get_one_or_two();
 
+        std::vector<Move> moves;
         std::string move_names[4];
         std::random_device rd;
 };
