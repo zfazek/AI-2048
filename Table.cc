@@ -26,6 +26,7 @@ void Table::init() {
         arr[i] = 0;
     }
     score = 0;
+    counter = 0;
 }
 
 void Table::make_move(
@@ -105,6 +106,7 @@ bool Table::is_end() const {
 }
 
 void Table::print() const {
+    printf("\033c");
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             const int idx = i * 4 + j;
@@ -115,7 +117,7 @@ void Table::print() const {
             std::cout << std::setw(4) << number << " ";
         }
         if (i == 3) {
-            std::cout << "score: " << score << std::endl;
+            std::cout << "score: " << score << ", number of random games: " << counter << std::endl;
         }
         std::cout << std::endl;
     }

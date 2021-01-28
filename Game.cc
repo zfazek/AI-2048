@@ -1,4 +1,5 @@
 #include "Game.hh"
+#include <chrono>
 
 Game::Game() {
     move_names[0] = "UP";
@@ -7,40 +8,55 @@ Game::Game() {
     move_names[3] = "LEFT";
 }
 
-void Game::make_one_move() {
+bool Game::make_one_move() {
     std::vector<Move> moves = generate_possible_moves();
-    uint8_t arr_orig[16];
-    for (int i = 0; i < 16; ++i) {
-        arr_orig[i] = table.arr[i];
+    if (moves.empty()) {
+        return false;
     }
-    uint32_t score_orig = table.score;
+    uint8_t arr_orig[16];
     Move best_move = 0;
     uint32_t best_score = 0;
-    for (const Move first_move : moves) {
-        table.print();
-        std::cout << "first move: " << move_names[first_move] << std::endl;
-        make_move(first_move);
-        put_new_number();
-        while (true) {
-            std::vector<Move> moves = generate_possible_moves();
-            if (moves.empty()) break;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<> distrib(0, moves.size() - 1);
-            const int idx = distrib(gen);
-            make_move(moves[idx]);
-            put_new_number();
-        }
-        table.print();
-        if (table.score > best_score) {
-            best_score = table.score;
-            best_move = first_move;
-        }
-        table.score = score_orig;
+    auto const start = std::chrono::system_clock::now();
+    table.counter = 0;
+    while (true) {
         for (int i = 0; i < 16; ++i) {
-            table.arr[i] = arr_orig[i];
+            arr_orig[i] = table.arr[i];
+        }
+        uint32_t score_orig = table.score;
+        for (const Move first_move : moves) {
+//            table.print();
+//            std::cout << "first move: " << move_names[first_move] << std::endl;
+            make_move(first_move);
+            put_new_number();
+            while (true) {
+                std::vector<Move> moves = generate_possible_moves();
+                if (moves.empty()) break;
+                std::mt19937 gen(rd());
+                std::uniform_int_distribution<> distrib(0, moves.size() - 1);
+                const int idx = distrib(gen);
+                make_move(moves[idx]);
+                put_new_number();
+            }
+//            table.print();
+            ++table.counter;
+            if (table.score > best_score) {
+                best_score = table.score;
+                best_move = first_move;
+            }
+            table.score = score_orig;
+            for (int i = 0; i < 16; ++i) {
+                table.arr[i] = arr_orig[i];
+            }
+        }
+        auto const now = std::chrono::system_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 200) {
+            break;
         }
     }
     std::cout << "best move: " << move_names[best_move] << ", best_score: " << best_score << std::endl;
+    make_move(best_move);
+    put_new_number();
+    return true;
 }
 
 std::vector<Move> Game::generate_possible_moves() const {

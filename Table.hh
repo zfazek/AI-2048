@@ -39,6 +39,7 @@ class Table {
         // 12 13 14 15
         uint8_t arr[16];
         uint32_t score;
+        size_t counter;
 
     private:
         std::unordered_map<uint32_t, Value> dp;

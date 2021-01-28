@@ -18,7 +18,7 @@ class Game {
     public:
         Game();
         std::vector<Move> generate_possible_moves() const;
-        void make_one_move();
+        bool make_one_move();
         void put_new_number();
         void make_move(const Move move);
 
