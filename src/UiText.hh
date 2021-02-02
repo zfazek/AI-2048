@@ -6,7 +6,7 @@ class UiText : public Ui {
     public:
         UiText();
         ~UiText() override;
-        void draw(const Table& table) const override;
+        void draw(const Position& position) const override;
         void handle_input() override;
         void end() override;
 

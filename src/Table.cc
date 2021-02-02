@@ -10,7 +10,7 @@ int Table::get_new_slot_idx() {
     int idx;
     while (true) {
         idx = distrib(gen);
-        if (arr[idx] == 0) {
+        if (position.arr[idx] == 0) {
             break;
         }
     }
@@ -23,10 +23,10 @@ Table::Table() {
 
 void Table::init() {
     for (int i = 0; i < 16; i++) {
-        arr[i] = 0;
+        position.arr[i] = 0;
     }
-    score = 0;
-    counter = 0;
+    position.score = 0;
+    position.last_move = NONE;
 }
 
 void Table::make_move(
@@ -34,10 +34,10 @@ void Table::make_move(
         const int idx2,
         const int idx3,
         const int idx4) {
-    const uint8_t v1 = arr[idx1];
-    const uint8_t v2 = arr[idx2];
-    const uint8_t v3 = arr[idx3];
-    const uint8_t v4 = arr[idx4];
+    const uint8_t v1 = position.arr[idx1];
+    const uint8_t v2 = position.arr[idx2];
+    const uint8_t v3 = position.arr[idx3];
+    const uint8_t v4 = position.arr[idx4];
     const uint32_t key = v1 * 16777216 + v2 * 65536 + v3 * 256 + v4;
     Value v;
     if (dp.find(key) != dp.end()) {
@@ -46,16 +46,16 @@ void Table::make_move(
         v = slide(key);
         dp[key] = v;
     }
-    score += v.score;
+    position.score += v.score;
     static uint8_t r[4];
     r[3] = v.row & 0xff;
     r[2] = (v.row >> 8) & 0xff;
     r[1] = (v.row >> 16) & 0xff;
     r[0] = (v.row >> 24) & 0xff;
-    arr[idx1] = r[0];
-    arr[idx2] = r[1];
-    arr[idx3] = r[2];
-    arr[idx4] = r[3];
+    position.arr[idx1] = r[0];
+    position.arr[idx2] = r[1];
+    position.arr[idx3] = r[2];
+    position.arr[idx4] = r[3];
 }
 
 Value Table::slide(const uint32_t in) const {
@@ -91,67 +91,33 @@ Value Table::slide(const uint32_t in) const {
 }
 
 void Table::put_new_number(const int idx, const int number) {
-    arr[idx] = number;
+    position.arr[idx] = number;
 }
 
 uint64_t Table::get_score() const {
-    return score;
-    /*
-    uint64_t weighted_score = 0;
-    for (int i = 0; i < 16; ++i) {
-        weighted_score += pow(2, arr[i]) * pow(4, 16 - i);
-    }
-    return weighted_score;
-    */
-}
-
-void Table::print(const bool clear) const {
-    if (clear) {
-        printf("\033c");
-    }
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            const int idx = i * 4 + j;
-            int number = 0;
-            if (arr[idx] > 0) {
-                number = pow(2, arr[idx]);
-            }
-            std::cout << std::setw(4) << number << " ";
-        }
-        if (i == 3) {
-            std::cout << "score: " << score << std::endl;
-            std::cout << "number of random games: " << counter;
-                std::cout << " (";
-            if (counter > 0) {
-                std::cout << number_of_moves / counter;
-            } else {
-                std::cout << 0;
-            }
-            std::cout << ")" << std::endl;
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    return position.score;
 }
 
 bool Table::is_possible_to_slide(const int idx1, const int idx2, const int idx3, const int idx4) const {
-    const uint8_t v1 = arr[idx1];
-    const uint8_t v2 = arr[idx2];
-    const uint8_t v3 = arr[idx3];
-    const uint8_t v4 = arr[idx4];
+    const uint8_t v1 = position.arr[idx1];
+    const uint8_t v2 = position.arr[idx2];
+    const uint8_t v3 = position.arr[idx3];
+    const uint8_t v4 = position.arr[idx4];
     if (v1 == 0 && v2 == 0 && v3 == 0 && v4 == 0) return false;
-    if (v1 == v2 || v2 == v3 || v3 == v4) return true;
+    if (v1 > 0 && v1 == v2) return true;
+    if (v2 > 0 && v2 == v3) return true;
+    if (v3 > 0 && v3 == v4) return true;
     if (v4 == 0) return true;
-    if (v3 == 0) return true;
-    if (v2 == 0) return true;
+    if (v3 == 0 && (v2 > 0 || v1 > 0)) return true;
+    if (v2 == 0 && v1 > 0) return true;
     return false;
 }
 
 bool Table::is_changing(const int idx1, const int idx2, const int idx3, const int idx4) const {
-    const uint8_t v1 = arr[idx1];
-    const uint8_t v2 = arr[idx2];
-    const uint8_t v3 = arr[idx3];
-    const uint8_t v4 = arr[idx4];
+    const uint8_t v1 = position.arr[idx1];
+    const uint8_t v2 = position.arr[idx2];
+    const uint8_t v3 = position.arr[idx3];
+    const uint8_t v4 = position.arr[idx4];
     if (v1 == 0 || v2 == 0 || v3 == 0 || v4 == 0) return true;
     if (v1 == v2 || v2 == v3 || v3 == v4) return true;
     return false;

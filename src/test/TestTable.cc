@@ -71,12 +71,12 @@ void test_slide() {
 void test_score() {
     Table table;
     for (int i = 0; i < 16; ++i) {
-        table.arr[i] = i;
+        table.position.arr[i] = i;
     }
     uint64_t score = table.get_score();
     std::cout << score << std::endl;
     for (int i = 0; i < 16; ++i) {
-        table.arr[i] = 16 - i;
+        table.position.arr[i] = 16 - i;
     }
     score = table.get_score();
     std::cout << score << std::endl;

@@ -7,18 +7,8 @@
 #include <random>
 #include <unordered_map>
 
-struct Value {
-    uint32_t row;
-    uint32_t score;
-    friend bool operator==(const Value& lhs, const Value& rhs) {
-        return lhs.row == rhs.row && lhs.score == rhs.score;
-    }
-    friend std::ostream& operator<<(std::ostream& os, const Value& v) {
-        os << "0x" << std::setfill('0') << std::setw(8) << std::right << std::hex
-           << v.row << std::dec << " " << v.score;
-        return os;
-    }
-};
+#include "Position.hh"
+#include "Value.hh"
 
 class Table {
     public:
@@ -32,17 +22,8 @@ class Table {
         bool is_possible_to_slide(const int idx1, const int idx2, const int idx3, const int idx4) const;
         bool is_changing(const int idx1, const int idx2, const int idx3, const int idx4) const;
         uint64_t get_score() const;
-        void print(const bool clear = false) const;
 
-        //  0  1  2  3
-        //  4  5  6  7
-        //  8  9 10 11
-        // 12 13 14 15
-        uint8_t arr[16];
-        uint32_t score;
-        uint64_t counter;
-        uint64_t number_of_moves;
-
+        Position position;
     private:
         std::unordered_map<uint32_t, Value> dp;
         std::random_device rd;

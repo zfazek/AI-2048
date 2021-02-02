@@ -11,7 +11,7 @@ class Ui {
     public:
         Ui();
         virtual ~Ui() = default;
-        virtual void draw(const Table& table) const = 0;
+        virtual void draw(const Position& position) const = 0;
         virtual void handle_input() = 0;
         virtual void clear_background() const {}
         virtual void end() {}
@@ -22,6 +22,10 @@ class Ui {
         void handle_down_key();
         void handle_a_key();
         void handle_m_key();
+        void handle_home_key();
+        void handle_end_key();
+        void handle_b_key();
+        void handle_n_key();
 
         Game game;
         GameState game_state;
