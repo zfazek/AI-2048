@@ -94,12 +94,15 @@ void Table::put_new_number(const int idx, const int number) {
     arr[idx] = number;
 }
 
-uint64_t Table::get_weighted_score() const {
+uint64_t Table::get_score() const {
+    return score;
+    /*
     uint64_t weighted_score = 0;
     for (int i = 0; i < 16; ++i) {
         weighted_score += pow(2, arr[i]) * pow(4, 16 - i);
     }
     return weighted_score;
+    */
 }
 
 void Table::print(const bool clear) const {

@@ -69,9 +69,9 @@ bool Game::make_one_move() {
             }
             // table.print();
             ++table.counter;
-            uint64_t weighted_score = table.get_weighted_score();
-            if (weighted_score > best_score) {
-                best_score = weighted_score;
+            uint64_t score = table.get_score();
+            if (score > best_score) {
+                best_score = score;
                 best_move = first_move;
             }
             table.score = score_orig;
@@ -80,7 +80,7 @@ bool Game::make_one_move() {
             }
         }
         auto const now = std::chrono::system_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 200) {
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 100) {
             break;
         }
     }
