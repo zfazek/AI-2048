@@ -25,9 +25,8 @@ bool Game::make_one_move() {
     Move best_move = 0;
     uint64_t best_score = 0;
     auto const start = std::chrono::system_clock::now();
-    Position position_orig;
     while (true) {
-        copy(position_orig, table.position);
+        Position position_orig = table.position;
         for (const Move first_move : moves) {
             // table.print();
             // std::cout << "first move: " << move_names[first_move] << std::endl;
@@ -47,7 +46,7 @@ bool Game::make_one_move() {
                 best_score = score;
                 best_move = first_move;
             }
-            copy(table.position, position_orig);
+            table.position = position_orig;
         }
         auto const now = std::chrono::system_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 200) {
@@ -66,13 +65,6 @@ void Game::insert_into_move_history(const Position& position) {
     }
     move_history.push_back(position);
     ++move_index;
-}
-
-void Game::copy(Position& to, const Position& from) {
-    for (int i = 0; i < 16; ++i) {
-        to.arr[i] = from.arr[i];
-    }
-    to.score = from.score;
 }
 
 bool Game::is_possible_to_move(const Move move) const {

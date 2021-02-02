@@ -57,33 +57,37 @@ void Ui::handle_m_key() {
 
 void Ui::handle_home_key() {
     game.move_index = 0;
-    game.copy(game.table.position, game.move_history[game.move_index]);
+    game.table.position = game.move_history[game.move_index];
 }
 
 void Ui::handle_end_key() {
     game.move_index = game.move_history.size() - 1;
-    game.copy(game.table.position, game.move_history[game.move_index]);
+    game.table.position = game.move_history[game.move_index];
 }
 
 void Ui::handle_b_key() {
     if (game.move_index > 0) {
         --game.move_index;
-        game.copy(game.table.position, game.move_history[game.move_index]);
+        game.table.position = game.move_history[game.move_index];
     }
 }
 
 void Ui::handle_n_key() {
     if (game.move_index < static_cast<int64_t>(game.move_history.size() - 1)) {
         ++game.move_index;
-        game.copy(game.table.position, game.move_history[game.move_index]);
+        game.table.position = game.move_history[game.move_index];
     }
+}
+
+void Ui::handle_q_key() {
+    game_state = GameState::QUIT;
 }
 
 void Ui::update(/*const float elapsed_time*/) {
     if (game_state == GameState::AI) {
         const bool succ = game.make_one_move();
         if (!succ) {
-            game_state = GameState::QUIT;
+            game_state = GameState::GAME;
         }
     }
 }

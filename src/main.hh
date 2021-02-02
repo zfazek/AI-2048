@@ -11,6 +11,7 @@ void main_common() {
     gui->game.put_new_number();
     gui->game.put_new_number();
     gui->game.insert_into_move_history(gui->game.table.position);
+    gui->draw(gui->game.move_history[gui->game.move_index]);
     while (gui->game_state != GameState::QUIT) {
         gui->clear_background();
         gui->handle_input();

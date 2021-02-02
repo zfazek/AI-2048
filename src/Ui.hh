@@ -26,6 +26,7 @@ class Ui {
         void handle_end_key();
         void handle_b_key();
         void handle_n_key();
+        void handle_q_key();
 
         Game game;
         GameState game_state;

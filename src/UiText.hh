@@ -14,6 +14,6 @@ class UiText : public Ui {
         void init();
         void close();
 
-        static constexpr char VERTICAL_BORDER = '|';
-        static constexpr char HORIZONTAL_BORDER = '=';
+        static constexpr char VERTICAL_BORDER = ' ';
+        static constexpr char HORIZONTAL_BORDER = ' ';
 };
