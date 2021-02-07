@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Position.hh"
+#include "Statistic.hh"
 #include "Table.hh"
 
 class Game {
@@ -18,10 +19,12 @@ class Game {
         void make_move(const Move move);
         bool is_possible_to_move(const Move move) const;
         void insert_into_move_history(const Position& position);
+        void clear_stats();
 
         int64_t move_index;
         Table table;
         std::vector<Position> move_history;
+        Statistic stats[4];
         std::string move_names[5];
 
     private:

@@ -13,6 +13,8 @@ class UiText : public Ui {
     private:
         void init();
         void close();
+        void draw_help() const;
+        void draw_stat(const Move move, const int pos_x, const int pos_y) const;
 
         static constexpr char VERTICAL_BORDER = ' ';
         static constexpr char HORIZONTAL_BORDER = ' ';

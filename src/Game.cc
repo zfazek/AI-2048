@@ -2,6 +2,10 @@
 
 #include <chrono>
 
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::system_clock;
+
 Game::Game() {
     move_names[0] = "UP   ";
     move_names[1] = "RIGHT";
@@ -17,19 +21,24 @@ void Game::init() {
     move_history.clear();
 }
 
+void Game::clear_stats() {
+    for (int i = 0; i < 4; i++) {
+        stats[i].clear();
+    }
+}
+
 bool Game::make_one_move() {
     std::vector<Move> moves = generate_possible_moves();
     if (moves.empty()) {
         return false;
     }
+    clear_stats();
     Move best_move = 0;
     uint64_t best_score = 0;
-    auto const start = std::chrono::system_clock::now();
+    auto const start = system_clock::now();
     while (true) {
         Position position_orig = table.position;
         for (const Move first_move : moves) {
-            // table.print();
-            // std::cout << "first move: " << move_names[first_move] << std::endl;
             make_move(first_move);
             put_new_number();
             while (true) {
@@ -46,10 +55,11 @@ bool Game::make_one_move() {
                 best_score = score;
                 best_move = first_move;
             }
+            stats[first_move].update(score);
             table.position = position_orig;
         }
-        auto const now = std::chrono::system_clock::now();
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 200) {
+        auto const now = system_clock::now();
+        if (duration_cast<milliseconds>(now - start).count() > 200) {
             break;
         }
     }

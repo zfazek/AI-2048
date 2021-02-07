@@ -16,7 +16,7 @@ void UiText::init() {
     initscr();
     cbreak();
     noecho();
-    timeout(20);
+    timeout(-1);
     curs_set(0);
     nodelay(stdscr, TRUE);
     keypad(stdscr, TRUE);
@@ -26,31 +26,21 @@ void UiText::init() {
         exit(1);
     }
     start_color();
-    init_color(1, 0xee, 0xe4, 0xda);
-    init_color(2, 0xee, 0xe1, 0xc9);
-    init_color(3, 0xf3, 0xb2, 0x7a);
-    init_color(4, 0xf6, 0x96, 0x64);
-    init_color(5, 0xf7, 0x7c, 0x5f);
-    init_color(6, 0xf7, 0x5f, 0x3b);
-    init_color(7, 0xed, 0xd0, 0x73);
-    init_color(8, 0xed, 0xcc, 0x62);
-    init_color(9, 0xed, 0xc9, 0x50);
-    init_color(10, 0xed, 0xc5, 0x3f);
-    init_color(11, 0xed, 0xc2, 0x2e);
-    init_color(12, 0xff, 0xff, 0xff);
     init_pair(1, COLOR_WHITE, COLOR_WHITE);
-    init_pair(2, COLOR_BLACK, 1);
-    init_pair(3, COLOR_BLACK, 2);
-    init_pair(4, COLOR_BLACK, 3);
-    init_pair(5, COLOR_BLACK, 4);
-    init_pair(6, COLOR_BLACK, 5);
-    init_pair(7, COLOR_BLACK, 6);
-    init_pair(8, COLOR_BLACK, 7);
-    init_pair(9, COLOR_WHITE, 8);
-    init_pair(10, COLOR_WHITE, 9);
-    init_pair(11, COLOR_WHITE, 10);
-    init_pair(12, COLOR_BLACK, 11);
-    init_pair(13, COLOR_BLACK, 12);
+    init_pair(2, COLOR_BLACK, COLOR_RED);
+    init_pair(3, COLOR_BLACK, COLOR_GREEN);
+    init_pair(4, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(5, COLOR_BLACK, COLOR_BLUE);
+    init_pair(6, COLOR_BLACK, COLOR_MAGENTA);
+    init_pair(7, COLOR_BLACK, COLOR_CYAN);
+    init_pair(8, COLOR_WHITE, COLOR_RED);
+    init_pair(9, COLOR_WHITE, COLOR_GREEN);
+    init_pair(10, COLOR_WHITE, COLOR_YELLOW);
+    init_pair(11, COLOR_WHITE, COLOR_BLUE);
+    init_pair(12, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(13, COLOR_WHITE, COLOR_CYAN);
+    init_pair(99, COLOR_WHITE, COLOR_BLACK);
+    bkgd(COLOR_BLACK);
 }
 
 void UiText::draw(const Position& position) const {
@@ -68,8 +58,9 @@ void UiText::draw(const Position& position) const {
             if (position.arr[idx] > 0) {
                 number = pow(2, position.arr[idx]);
                 int color_idx = position.arr[idx] + 1;
-                if (color_idx > 13) {
-                    color_idx = 13;
+                const int max_color = 13;
+                if (color_idx > max_color) {
+                    color_idx = max_color;
                 }
                 attron(COLOR_PAIR(color_idx));
                 mvprintw(i * 2 + 1, j * 5 + 1, "%4d", number);
@@ -87,10 +78,35 @@ void UiText::draw(const Position& position) const {
             mvaddch(i * 2 + 2, 20, VERTICAL_BORDER);
         }
     }
-    mvprintw(9, 0, "Moves: %6d", game.move_index);
-    mvprintw(10, 0, "Score: %6d", position.score);
-    mvprintw(11, 0, "Last move: %5s", game.move_names[position.last_move].c_str());
+    mvprintw(9, 0, "Moves:    %6d", game.move_index);
+    mvprintw(10, 0, "Score:    %6d", position.score);
+    mvprintw(11, 0, "Last move:  %5s", game.move_names[position.last_move].c_str());
+    draw_help();
+    draw_stat(UP, 27, 0);
+    draw_stat(LEFT, 47, 0);
+    draw_stat(RIGHT, 67, 0);
+    draw_stat(DOWN, 87, 0);
     refresh();
+}
+
+void UiText::draw_help() const {
+    mvprintw(13, 0, "ARROW KEYS: move");
+    mvprintw(14, 0, "'b':        undo last move");
+    mvprintw(15, 0, "'n':        redo last move");
+    mvprintw(16, 0, "HOME:       undo all moves");
+    mvprintw(17, 0, "END:        redo all moves");
+    mvprintw(18, 0, "'m':        AI moves once");
+    mvprintw(19, 0, "'a':        Toggle AI mode");
+    mvprintw(20, 0, "'q':        Quit");
+}
+
+void UiText::draw_stat(const Move move, const int pos_x, const int pos_y) const {
+    const Statistic statistic = game.stats[move];
+    mvprintw(pos_y, pos_x, "%5s", game.move_names[move].c_str());
+    mvprintw(pos_y + 1, pos_x, "count:   %5d", statistic.count);
+    mvprintw(pos_y + 2, pos_x, "average: %5d", statistic.count == 0 ?
+            0 : statistic.sum / statistic.count);
+    mvprintw(pos_y + 3, pos_x, "max:     %5d", statistic.max);
 }
 
 void UiText::handle_input() {
